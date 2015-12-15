@@ -99,6 +99,18 @@ namespace WinTail
 				// move file cursor forward
 				// pull results from cursor to end of file and write to output
 				// (this is assuming a log file type format that is append-only)
+
+				var fileInfo = new FileInfo (Path.GetFullPath (_filePath));
+				if (fileInfo.Length > _fileStream.Length) {
+					long currentLocation = _fileStream.Length - 1;
+					_fileStreamReader.Close ();
+					_fileStream = new FileStream (Path.GetFullPath (_filePath), FileMode.Open, 
+						FileAccess.Read, FileShare.ReadWrite);
+
+					_fileStream.Seek (currentLocation, SeekOrigin.Begin);
+					_fileStreamReader = new StreamReader(_fileStream, Encoding.UTF8);
+				}
+
 				var text = _fileStreamReader.ReadToEnd();
 				if (!string.IsNullOrEmpty(text))
 				{
